@@ -3,6 +3,7 @@
   "private": true,
   "version": "1.0.0",
   "description": "Local transaction dashboard",
+  "license": "MIT",
   "devDependencies": {
     "@playwright/test": "^1.50.1"
   },
