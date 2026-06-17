@@ -1,0 +1,85 @@
+.proposal-table {
+  table-layout: fixed;
+  width: 100%;
+}
+
+.proposal-table th,
+.proposal-table td {
+  white-space: normal;
+  vertical-align: top;
+}
+
+.proposal-table input,
+.proposal-table select {
+  min-width: 0;
+}
+
+.tx-table th,
+.tx-table td {
+  white-space: nowrap;
+}
+
+.tx-table .tx-purpose-cell {
+  white-space: normal;
+}
+
+.tx-label {
+  max-width: 320px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: bottom;
+}
+
+.tx-purpose {
+  display: block;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.bdgt-nav {
+  position: sticky;
+  top: 0;
+  z-index: 1030;
+  background: #f8f9fa;
+}
+
+.bdgt-nav-inner {
+  padding: 0.75rem 0;
+}
+
+.bdgt-nav-btn {
+  border-radius: 999px;
+  font-weight: 600;
+}
+
+.section-panel {
+  display: none;
+}
+
+.section-panel.is-active {
+  display: flex;
+}
+
+.bdgt-sparkline {
+  width: 120px;
+  height: 28px;
+  color: #0d6efd;
+}
+
+.bdgt-sparkline-axis {
+  stroke: #dee2e6;
+  stroke-width: 1;
+}
+
+.bdgt-sparkline-line {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.project-tx-scroll {
+  max-height: 340px;
+  overflow: auto;
+}

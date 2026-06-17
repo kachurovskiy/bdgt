@@ -1,0 +1,639 @@
+﻿<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>BDGT - instant budget app</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body class="bg-light">
+  <div class="container-fluid">
+    <nav class="bdgt-nav" aria-label="Section navigation">
+      <div class="bdgt-nav-inner d-flex flex-wrap gap-2">
+        <button id="nav-setup" type="button" class="btn btn-outline-primary bdgt-nav-btn" data-section-btn="setup" aria-controls="section-setup">Setup</button>
+        <button id="nav-rules" type="button" class="btn btn-outline-primary bdgt-nav-btn" data-section-btn="rules" aria-controls="section-rules">Rules</button>
+        <button id="nav-proposed" type="button" class="btn btn-outline-primary bdgt-nav-btn" data-section-btn="proposed" aria-controls="section-proposed">Proposed Rules</button>
+        <button id="nav-overrides" type="button" class="btn btn-outline-primary bdgt-nav-btn" data-section-btn="overrides" aria-controls="section-overrides">Overrides</button>
+        <button id="nav-insights" type="button" class="btn btn-outline-primary bdgt-nav-btn" data-section-btn="insights" aria-controls="section-insights">Insights</button>
+        <button id="nav-recurring" type="button" class="btn btn-outline-primary bdgt-nav-btn" data-section-btn="recurring" aria-controls="section-recurring">Recurring</button>
+        <button id="nav-projects" type="button" class="btn btn-outline-primary bdgt-nav-btn" data-section-btn="projects" aria-controls="section-projects">Projects</button>
+        <button id="nav-monthly" type="button" class="btn btn-outline-primary bdgt-nav-btn" data-section-btn="monthly" aria-controls="section-monthly">Monthly</button>
+        <button id="nav-networth" type="button" class="btn btn-outline-primary bdgt-nav-btn" data-section-btn="networth" aria-controls="section-networth">Net Worth</button>
+        <button id="nav-retirement" type="button" class="btn btn-outline-primary bdgt-nav-btn" data-section-btn="retirement" aria-controls="section-retirement">Retirement</button>
+        <button id="nav-highvalue" type="button" class="btn btn-outline-primary bdgt-nav-btn" data-section-btn="highvalue" aria-controls="section-highvalue">High-Value Exclusions</button>
+        <button id="nav-transactions" type="button" class="btn btn-outline-primary bdgt-nav-btn" data-section-btn="transactions" aria-controls="section-transactions">Transactions</button>
+      </div>
+    </nav>
+    <div class="bdgt-sections">
+      <div id="section-setup" class="row g-4 section-panel is-active" data-section-panel="setup" aria-labelledby="nav-setup">
+      <section class="col-12">
+        <div class="card shadow-sm h-100">
+          <div class="card-header">
+            <h2 class="h5 mb-0">Import & Storage</h2>
+          </div>
+          <div class="card-body d-flex flex-column gap-3">
+            <div class="d-flex flex-wrap gap-3 align-items-end">
+              <input id="csvFile" class="visually-hidden" type="file" accept=".csv,text/csv" />
+              <input id="jsonFile" class="visually-hidden" type="file" accept=".json,application/json" />
+              <input id="amazonFile" class="visually-hidden" type="file" accept=".csv,text/csv" />
+              <div>
+                <button id="importBtn" class="btn btn-primary">Import & Merge</button>
+              </div>
+              <div>
+                <button id="amazonImportBtn" class="btn btn-outline-secondary">Import Amazon Orders</button>
+              </div>
+              <div>
+                <button id="exportBtn" class="btn btn-outline-secondary">Backup</button>
+              </div>
+              <div>
+                <button id="demoBtn" class="btn btn-outline-warning">Demo Mode</button>
+              </div>
+              <div>
+                <button id="restoreBtn" class="btn btn-outline-primary">Restore</button>
+              </div>
+              <div>
+                <button id="clearBtn" class="btn btn-outline-danger">Clear Local Data</button>
+              </div>
+            </div>
+            <div id="importStatus" class="alert alert-secondary py-2 mb-0">No data loaded yet.</div>
+            <p class="text-muted mb-0">Everything stays local in your browser (localStorage). Backup downloads a JSON snapshot of all local data; Restore replaces it.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="col-12">
+        <div class="card shadow-sm h-100">
+          <div class="card-header d-flex flex-wrap gap-2 align-items-center">
+            <h2 class="h5 mb-0 flex-grow-1">Database Overview</h2>
+            <span id="dbOverviewStatus" class="badge text-bg-light border text-secondary">No local data yet.</span>
+          </div>
+          <div class="card-body d-flex flex-column gap-3">
+            <div id="dbOverviewStats" class="row g-3"></div>
+            <div id="dbOverviewTable"></div>
+            <p class="text-muted mb-0">Overview of localStorage keys starting with <code>bdgt.</code></p>
+          </div>
+        </div>
+      </section>
+
+      </div>
+      <div id="section-rules" class="row g-4 section-panel" data-section-panel="rules" aria-labelledby="nav-rules">
+      <section class="col-12 col-lg-6">
+        <div class="card shadow-sm h-100">
+          <div class="card-header">
+            <h2 class="h5 mb-0">Auto-Categorization (Expenses)</h2>
+          </div>
+          <div class="card-body d-flex flex-column gap-3">
+            <div class="d-flex flex-wrap gap-3 align-items-end">
+              <div class="flex-grow-1">
+                <label class="form-label" for="expenseRuleKeyword">Keyword</label>
+                <input id="expenseRuleKeyword" class="form-control" type="text" placeholder="e.g. netflix, amazon" />
+              </div>
+              <div class="flex-grow-1">
+                <label class="form-label" for="expenseRuleCategory">Category</label>
+                <select id="expenseRuleCategory" class="form-select"></select>
+              </div>
+              <div>
+                <button id="addExpenseRuleBtn" class="btn btn-primary">Add expense rule</button>
+              </div>
+            </div>
+            <div id="expenseRuleTableWrap"></div>
+            <p class="text-muted mb-0">Applies to outgoing transactions. First match wins.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="col-12 col-lg-6">
+        <div class="card shadow-sm h-100">
+          <div class="card-header">
+            <h2 class="h5 mb-0">Auto-Categorization (Incoming / Refunds)</h2>
+          </div>
+          <div class="card-body d-flex flex-column gap-3">
+            <div class="d-flex flex-wrap gap-3 align-items-end">
+              <div class="flex-grow-1">
+                <label class="form-label" for="incomeRuleKeyword">Keyword</label>
+                <input id="incomeRuleKeyword" class="form-control" type="text" placeholder="e.g. salary, payroll" />
+              </div>
+              <div class="flex-grow-1">
+                <label class="form-label" for="incomeRuleCategory">Category</label>
+                <select id="incomeRuleCategory" class="form-select"></select>
+              </div>
+              <div>
+                <button id="addIncomeRuleBtn" class="btn btn-primary">Add incoming rule</button>
+              </div>
+            </div>
+            <div id="incomeRuleTableWrap"></div>
+            <p class="text-muted mb-0">Applies to incoming transactions. Use categories like Cars for refunds. First match wins.</p>
+          </div>
+        </div>
+      </section>
+
+      </div>
+      <div id="section-proposed" class="row g-4 section-panel" data-section-panel="proposed" aria-labelledby="nav-proposed">
+      <section class="col-12">
+        <div class="card shadow-sm h-100">
+          <div class="card-header">
+            <h2 class="h5 mb-0" id="proposalHeader">Proposed Rules</h2>
+          </div>
+          <div class="card-body d-flex flex-column gap-3">
+            <div class="d-flex flex-wrap gap-3 align-items-end">
+              <div>
+                <label class="form-label" for="proposalMin">Min matches</label>
+                <input id="proposalMin" class="form-control" type="number" min="2" max="20" />
+              </div>
+              <div class="text-muted">Suggestions are grouped by repeated keywords found in payee, purpose, and description.</div>
+            </div>
+            <div id="proposalTableWrap"></div>
+          </div>
+        </div>
+      </section>
+
+      </div>
+      <div id="section-overrides" class="row g-4 section-panel" data-section-panel="overrides" aria-labelledby="nav-overrides">
+      <section class="col-12">
+        <div class="card shadow-sm h-100">
+          <div class="card-header">
+            <h2 class="h5 mb-0">Manual Overrides</h2>
+          </div>
+          <div class="card-body d-flex flex-column gap-3">
+            <div class="d-flex flex-wrap gap-3 align-items-end">
+              <div class="flex-grow-1">
+                <label class="form-label">Selected transaction</label>
+                <div id="overrideSelection" class="alert alert-secondary py-2 mb-0">Select a transaction from the list below.</div>
+              </div>
+              <div class="flex-grow-1">
+                <label class="form-label" for="overrideCategory">Category override</label>
+                <select id="overrideCategory" class="form-select"></select>
+              </div>
+              <div class="form-check mt-2">
+                <input id="overrideExclude" class="form-check-input" type="checkbox" />
+                <label class="form-check-label" for="overrideExclude">Exclude from budgeting</label>
+              </div>
+              <div>
+                <button id="saveOverrideBtn" class="btn btn-primary">Save override</button>
+              </div>
+              <div>
+                <button id="clearOverrideBtn" class="btn btn-outline-secondary">Clear override</button>
+              </div>
+            </div>
+            <div id="overrideTableWrap"></div>
+            <p class="text-muted mb-0">Overrides are stored locally and take precedence over auto rules.</p>
+          </div>
+        </div>
+      </section>
+
+      </div>
+      <div id="section-insights" class="row g-4 section-panel" data-section-panel="insights" aria-labelledby="nav-insights">
+      <section class="col-12">
+        <div class="card shadow-sm h-100">
+          <div class="card-header">
+            <h2 class="h5 mb-0">Summary</h2>
+          </div>
+          <div class="card-body d-flex flex-column gap-3">
+            <div id="summaryBadges" class="d-flex flex-wrap gap-2"></div>
+            <div id="summaryStats" class="row g-3"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="col-12">
+        <div class="card shadow-sm h-100">
+          <div class="card-header">
+            <h2 class="h5 mb-0">Charts</h2>
+          </div>
+          <div class="card-body d-flex flex-column gap-3">
+            <div id="chartStatus" class="alert alert-warning d-none mb-0">Charts are unavailable because Chart.js could not load.</div>
+            <div class="row g-3">
+              <div class="col-12 col-lg-4">
+                <div class="border rounded-3 p-2 bg-white h-100">
+                  <h3 class="h6 mb-3">Yearly Inflow vs Outflow</h3>
+                  <canvas id="yearlyChart" height="180"></canvas>
+                </div>
+              </div>
+              <div class="col-12 col-lg-4">
+                <div class="border rounded-3 p-2 bg-white h-100">
+                  <h3 class="h6 mb-3">Monthly Inflow vs Outflow</h3>
+                  <canvas id="monthlyChart" height="180"></canvas>
+                </div>
+              </div>
+              <div class="col-12 col-lg-4">
+                <div class="border rounded-3 p-2 bg-white h-100">
+                  <h3 class="h6 mb-3">Category Breakdown (Selected Month)</h3>
+                  <div class="d-flex flex-wrap gap-2 align-items-center mb-2">
+                    <label class="form-label mb-0 small" for="insightsMonthSelect">Month</label>
+                    <select id="insightsMonthSelect" class="form-select form-select-sm w-auto"></select>
+                  </div>
+                  <canvas id="categoryChart" height="180"></canvas>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      </div>
+      <div id="section-recurring" class="row g-4 section-panel" data-section-panel="recurring" aria-labelledby="nav-recurring">
+      <section class="col-12">
+        <div class="card shadow-sm h-100">
+          <div class="card-header">
+            <h2 class="h5 mb-0">Manage Recurring Streams</h2>
+          </div>
+          <div class="card-body d-flex flex-column gap-3">
+            <div class="d-flex flex-wrap gap-3 align-items-end">
+              <div class="flex-grow-1">
+                <label class="form-label" for="recurringLabel">Stream label</label>
+                <input id="recurringLabel" class="form-control" type="text" placeholder="e.g. Rent, Spotify" />
+              </div>
+              <div class="flex-grow-1">
+                <label class="form-label" for="recurringKeyword">Match keyword</label>
+                <input id="recurringKeyword" class="form-control" type="text" placeholder="e.g. spotify, landlord" />
+              </div>
+              <div>
+                <button id="saveRecurringStreamBtn" class="btn btn-primary">Add stream</button>
+              </div>
+              <div>
+                <button id="clearRecurringStreamBtn" class="btn btn-outline-secondary">Clear</button>
+              </div>
+            </div>
+            <div id="recurringPreview"></div>
+            <div id="recurringStreamsTable"></div>
+            <p class="text-muted mb-0">Streams match expense transactions by keyword in payee, purpose, or description. Tip: use “Mark recurring” in Transactions to prefill a stream.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="col-12">
+        <div class="card shadow-sm h-100">
+          <div class="card-header">
+            <h2 class="h5 mb-0">Expense Streams (This Year)</h2>
+          </div>
+          <div class="card-body d-flex flex-column gap-3">
+            <div id="recurringExpenses"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="col-12">
+        <div class="card shadow-sm h-100">
+          <div class="card-header">
+            <h2 class="h5 mb-0">Expense Streams (Last Year)</h2>
+          </div>
+          <div class="card-body d-flex flex-column gap-3">
+            <div id="archivedRecurring"></div>
+            <p class="text-muted mb-0">Shows streams with matches from the previous year.</p>
+          </div>
+        </div>
+      </section>
+
+      </div>
+      <div id="section-projects" class="row g-4 section-panel" data-section-panel="projects" aria-labelledby="nav-projects">
+      <section class="col-12">
+        <div class="card shadow-sm h-100">
+          <div class="card-header">
+            <h2 class="h5 mb-0">Projects</h2>
+          </div>
+          <div class="card-body d-flex flex-column gap-3">
+            <div class="d-flex flex-wrap gap-3 align-items-end">
+              <div class="flex-grow-1">
+                <label class="form-label" for="projectName">Project name</label>
+                <input id="projectName" class="form-control" type="text" placeholder="e.g. DIY, Nephews" />
+              </div>
+              <div class="flex-grow-1">
+                <label class="form-label" for="projectKeywords">Match keywords (comma-separated)</label>
+                <input id="projectKeywords" class="form-control" type="text" placeholder="e.g. homedepot, lego, nephew" />
+              </div>
+              <div class="form-check mt-2">
+                <input id="projectFinished" class="form-check-input" type="checkbox" />
+                <label class="form-check-label" for="projectFinished">Mark finished</label>
+              </div>
+              <div>
+                <button id="saveProjectBtn" class="btn btn-primary">Add project</button>
+              </div>
+              <div>
+                <button id="clearProjectBtn" class="btn btn-outline-secondary">Clear</button>
+              </div>
+            </div>
+            <div id="projectsWrap" class="d-flex flex-column gap-3"></div>
+            <p class="text-muted mb-0">Projects match both inflow and outflow by keyword in payee, purpose, or description.</p>
+          </div>
+        </div>
+      </section>
+
+      </div>
+      <div id="section-monthly" class="row g-4 section-panel" data-section-panel="monthly" aria-labelledby="nav-monthly">
+      <section class="col-12">
+        <div class="card shadow-sm h-100">
+          <div class="card-header d-flex flex-wrap gap-3 align-items-end">
+            <h2 class="h5 mb-0 flex-grow-1">Category Trends</h2>
+            <div>
+              <label class="form-label small" for="categoryTrendMax">Y-axis max</label>
+              <input id="categoryTrendMax" class="form-control form-control-sm" type="number" min="0" step="100" />
+            </div>
+          </div>
+          <div class="card-body d-flex flex-column gap-3">
+            <div id="categoryTrendStatus" class="alert alert-warning d-none mb-0">Category trend chart is unavailable because Chart.js could not load.</div>
+            <canvas id="categoryTrendChart" height="70"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <section class="col-12">
+        <div class="card shadow-sm h-100">
+          <div class="card-header">
+            <h2 class="h5 mb-0">Monthly Category Outflow</h2>
+          </div>
+          <div class="card-body d-flex flex-column gap-3">
+            <div id="categoryTableWrap"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="col-12">
+        <div class="card shadow-sm h-100">
+          <div class="card-header">
+            <h2 class="h5 mb-0">Monthly Drilldown</h2>
+          </div>
+          <div class="card-body d-flex flex-column gap-3">
+            <div class="d-flex flex-wrap gap-3 align-items-end">
+              <div>
+                <label class="form-label" for="monthSelect">Select month</label>
+                <select id="monthSelect" class="form-select"></select>
+              </div>
+              <div id="monthHighlights" class="row g-3 flex-grow-1"></div>
+            </div>
+            <div id="monthCategoryWrap"></div>
+          </div>
+        </div>
+      </section>
+
+      </div>
+      <div id="section-networth" class="row g-4 section-panel" data-section-panel="networth" aria-labelledby="nav-networth">
+      <section class="col-12">
+        <div class="card shadow-sm h-100">
+          <div class="card-header">
+            <h2 class="h5 mb-0">Net Worth</h2>
+          </div>
+          <div class="card-body d-flex flex-column gap-3">
+            <p class="text-muted mb-0">Fill out once per month on the 28th (end-of-month snapshot).</p>
+            <div id="netWorthStatus" class="alert alert-warning d-none mb-0">Net worth chart unavailable because Chart.js could not load.</div>
+              <div class="border rounded-3 p-2 bg-white">
+                <h3 class="h6 mb-3">Net Worth Trend</h3>
+                <canvas id="netWorthChart" height="60"></canvas>
+              </div>
+              <div id="netWorthPasteWrap" class="border rounded-3 p-3 bg-white">
+                <div class="d-flex flex-wrap gap-3 align-items-end">
+                  <div class="flex-grow-1">
+                    <label class="form-label" for="netWorthPasteInput">Paste net worth table</label>
+                    <textarea id="netWorthPasteInput" class="form-control" rows="4" placeholder="Date&#9;C24&#9;Morgan Stanley&#9;Vanguard&#9;..."></textarea>
+                    <div class="form-text">Copy a Sheets table with a header row. Import replaces existing net worth data; "Total" is ignored.</div>
+                  </div>
+                  <div class="d-flex flex-column gap-2">
+                    <button id="importNetWorthBtn" class="btn btn-outline-primary">Import table</button>
+                    <button id="clearNetWorthPasteBtn" class="btn btn-outline-secondary btn-sm">Clear</button>
+                  </div>
+                </div>
+                <div id="netWorthImportStatus" class="alert alert-light border mt-3 mb-0 d-none"></div>
+              </div>
+              <div class="d-flex flex-wrap gap-3 align-items-end">
+                <div class="flex-grow-1">
+                  <label class="form-label" for="netWorthSourceInput">New source</label>
+                  <input id="netWorthSourceInput" class="form-control" type="text" placeholder="e.g. Bank, Brokerage" />
+                </div>
+              <div>
+                <button id="addNetWorthSourceBtn" class="btn btn-outline-primary">Add source</button>
+              </div>
+            </div>
+            <div class="border rounded-3 p-3 bg-white">
+              <div class="d-flex flex-wrap gap-3 align-items-end">
+                <div>
+                  <label class="form-label" for="netWorthDateInput">Record date</label>
+                  <input id="netWorthDateInput" class="form-control" type="date" />
+                </div>
+                <div class="flex-grow-1">
+                  <div id="netWorthInputs" class="row g-2"></div>
+                </div>
+                <div class="text-end">
+                  <div class="small text-muted">Total preview</div>
+                  <div id="netWorthTotalPreview" class="fw-semibold">€0.00</div>
+                  <button id="addNetWorthRecordBtn" class="btn btn-primary mt-2">Add record</button>
+                </div>
+              </div>
+            </div>
+            <div id="netWorthTable"></div>
+          </div>
+        </div>
+      </section>
+
+      <section class="col-12">
+        <div class="card shadow-sm h-100">
+          <div class="card-header">
+            <h2 class="h5 mb-0">5-Year Forecast (Net Worth)</h2>
+          </div>
+          <div class="card-body d-flex flex-column gap-3">
+            <div class="row g-3">
+              <div class="col-12 col-md-3">
+                <label class="form-label" for="forecastNetWorthLookback">Lookback months</label>
+                <input id="forecastNetWorthLookback" class="form-control" type="number" min="3" max="120" step="1" />
+              </div>
+              <div class="col-12 col-md-3">
+                <label class="form-label" for="forecastNetWorthMethod">Projection method</label>
+                <select id="forecastNetWorthMethod" class="form-select">
+                  <option value="cagr">CAGR (compounded)</option>
+                  <option value="linear">Average monthly change</option>
+                </select>
+              </div>
+              <div class="col-12 col-md-3">
+                <label class="form-label" for="forecastNetWorthGrowth">Override annual growth (%)</label>
+                <input id="forecastNetWorthGrowth" class="form-control" type="number" step="0.1" />
+              </div>
+              <div class="col-12 col-md-3">
+                <label class="form-label" for="forecastNetWorthContribution">Annual salary contribution</label>
+                <input id="forecastNetWorthContribution" class="form-control" type="number" step="100" />
+              </div>
+            </div>
+            <div class="border rounded-3 p-3 bg-white">
+              <div class="d-flex flex-wrap gap-2 align-items-center">
+                <h3 class="h6 mb-0 flex-grow-1">Split Growth Rates</h3>
+                <button id="addForecastSplitBtn" class="btn btn-sm btn-outline-primary">Add split</button>
+              </div>
+              <div id="forecastSplitTable" class="mt-2"></div>
+              <div class="form-text">Optional: split net worth into parts with their own annual growth rates. Weights are normalized.</div>
+            </div>
+            <div id="forecastSummary" class="alert alert-light border mb-0"></div>
+            <div id="forecastTableWrap"></div>
+            <p class="text-muted mb-0">Projection uses net worth history; override growth replaces the computed rate. Salary contributions add yearly increases. Split parts apply their own growth rates when set.</p>
+          </div>
+        </div>
+      </section>
+
+      </div>
+      <div id="section-retirement" class="row g-4 section-panel" data-section-panel="retirement" aria-labelledby="nav-retirement">
+      <section class="col-12">
+        <div class="card shadow-sm h-100">
+          <div class="card-header">
+            <h2 class="h5 mb-0">Retirement Estimator (German Pension)</h2>
+          </div>
+          <div class="card-body d-flex flex-column gap-3">
+            <div class="row g-3">
+              <div class="col-6">
+                <label class="form-label" for="retirementCurrentAge">Current age</label>
+                <input id="retirementCurrentAge" class="form-control" type="number" min="0" max="100" />
+              </div>
+              <div class="col-6">
+                <label class="form-label" for="retirementAge">State pension age</label>
+                <input id="retirementAge" class="form-control" type="number" min="50" max="75" />
+              </div>
+              <div class="col-6">
+                <label class="form-label" for="retirementExistingEP">Existing Entgeltpunkte (EP)</label>
+                <input id="retirementExistingEP" class="form-control" type="number" step="0.1" min="0" />
+              </div>
+              <div class="col-6">
+                <label class="form-label" for="retirementSex">Sex (for life expectancy)</label>
+                <select id="retirementSex" class="form-select">
+                  <option value="female">Female</option>
+                  <option value="male">Male</option>
+                  <option value="other">Other / prefer not to say</option>
+                </select>
+              </div>
+              <div class="col-6">
+                <label class="form-label" for="retirementLifeExpectancy">Life expectancy (years)</label>
+                <input id="retirementLifeExpectancy" class="form-control" type="number" step="0.1" min="0" />
+              </div>
+              <div class="col-12">
+                <div class="form-check">
+                  <input id="retirementUseLifeExpectancy" class="form-check-input" type="checkbox" />
+                  <label class="form-check-label" for="retirementUseLifeExpectancy">Auto-estimate from Germany life expectancy (at birth)</label>
+                </div>
+              </div>
+              <div class="col-6">
+                <label class="form-label" for="retirementInvestedShare">Net worth invested in market (%)</label>
+                <input id="retirementInvestedShare" class="form-control" type="number" min="0" max="100" step="1" />
+              </div>
+              <div class="col-6">
+                <label class="form-label" for="retirementMarketGrowth">Annual market growth (%)</label>
+                <input id="retirementMarketGrowth" class="form-control" type="number" step="0.1" />
+              </div>
+            </div>
+            <div id="retirementSummary" class="alert alert-light border mb-0"></div>
+            <div id="retirementExpenseTableWrap"></div>
+            <p class="text-muted mb-0">Assumes retirement now, no future pension contributions, and constant annual growth on the invested share.</p>
+          </div>
+        </div>
+      </section>
+
+      </div>
+      <div id="section-highvalue" class="row g-4 section-panel" data-section-panel="highvalue" aria-labelledby="nav-highvalue">
+      <section class="col-12">
+        <div class="card shadow-sm h-100">
+          <div class="card-header">
+            <h2 class="h5 mb-0">High-Value Exclusions</h2>
+          </div>
+          <div class="card-body d-flex flex-column gap-3">
+            <div class="d-flex flex-wrap gap-3 align-items-end">
+              <div>
+                <label class="form-label" for="exclusionThreshold">Auto-exclude above (absolute amount)</label>
+                <input id="exclusionThreshold" class="form-control" type="number" min="0" step="1" />
+              </div>
+              <div class="text-muted">Transactions above this amount are excluded from budgeting and shown here. Set to 0 to disable amount-based exclusion.</div>
+            </div>
+            <div class="border rounded-3 p-3 bg-white">
+              <div class="d-flex flex-wrap gap-2 align-items-center">
+                <h3 class="h6 mb-0 flex-grow-1">Exclusion rules</h3>
+              </div>
+              <div class="d-flex flex-wrap gap-3 align-items-end mt-2">
+                <div class="flex-grow-1">
+                  <label class="form-label" for="exclusionRuleKeyword">Keyword</label>
+                  <input id="exclusionRuleKeyword" class="form-control" type="text" placeholder="e.g. transfer, broker" />
+                </div>
+                <div>
+                  <button id="addExclusionRuleBtn" class="btn btn-primary">Add exclusion rule</button>
+                </div>
+              </div>
+              <div id="exclusionRuleTableWrap" class="mt-3"></div>
+              <p class="text-muted mb-0">Matches payee, purpose, or description. Applies to inflow and outflow.</p>
+            </div>
+            <div class="border rounded-3 p-3 bg-white">
+              <div class="d-flex flex-wrap gap-2 align-items-center">
+                <h3 class="h6 mb-0 flex-grow-1">Exclusion allowlist</h3>
+              </div>
+              <div class="d-flex flex-wrap gap-3 align-items-end mt-2">
+                <div class="flex-grow-1">
+                  <label class="form-label" for="exclusionAllowKeyword">Keyword</label>
+                  <input id="exclusionAllowKeyword" class="form-control" type="text" placeholder="e.g. payroll, tax refund" />
+                </div>
+                <div>
+                  <button id="addExclusionAllowBtn" class="btn btn-outline-primary">Add allowlist term</button>
+                </div>
+              </div>
+              <div id="exclusionAllowTableWrap" class="mt-3"></div>
+              <p class="text-muted mb-0">Allowlist terms override exclusion rules only. Amount-based exclusions still apply.</p>
+            </div>
+            <div id="highValueTableWrap"></div>
+          </div>
+        </div>
+      </section>
+
+      </div>
+      <div id="section-transactions" class="row g-4 section-panel" data-section-panel="transactions" aria-labelledby="nav-transactions">
+      <section class="col-12">
+        <div class="card shadow-sm h-100">
+          <div class="card-header">
+            <h2 class="h5 mb-0">Transactions</h2>
+          </div>
+          <div class="card-body d-flex flex-column gap-3">
+            <div class="d-flex flex-wrap gap-3 align-items-end">
+              <div class="flex-grow-1">
+                <label class="form-label" for="txSearch">Search</label>
+                <input id="txSearch" class="form-control" type="text" placeholder="Payee, category, purpose..." />
+              </div>
+              <div>
+                <label class="form-label" for="txFlow">Flow</label>
+                <select id="txFlow" class="form-select">
+                  <option value="all">All</option>
+                  <option value="inflow">Inflow</option>
+                  <option value="outflow">Outflow</option>
+                  <option value="refund">Refunds</option>
+                </select>
+              </div>
+              <div>
+                <label class="form-label" for="txCategory">Category</label>
+                <select id="txCategory" class="form-select"></select>
+              </div>
+              <div>
+                <label class="form-label" for="txTag">Tag</label>
+                <select id="txTag" class="form-select"></select>
+              </div>
+              <div>
+                <label class="form-label" for="txMinAmount">Min value</label>
+                <input id="txMinAmount" class="form-control" type="number" min="0" step="0.01" placeholder="Absolute amount" />
+              </div>
+              <div>
+                <label class="form-label" for="txMaxAmount">Max value</label>
+                <input id="txMaxAmount" class="form-control" type="number" min="0" step="0.01" placeholder="Absolute amount" />
+              </div>
+              <div>
+                <label class="form-label" for="txMonth">Month</label>
+                <select id="txMonth" class="form-select"></select>
+              </div>
+              <div class="form-check mt-2">
+                <input id="showExcluded" class="form-check-input" type="checkbox" checked />
+                <label class="form-check-label" for="showExcluded">Show excluded</label>
+              </div>
+            </div>
+            <div id="txTableWrap"></div>
+          </div>
+        </div>
+      </section>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <script src="app-core.js"></script>
+  <script src="app-render.js"></script>
+  <script src="app-events.js"></script>
+
+</body>
+</html>
